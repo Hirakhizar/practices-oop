@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
             Post::factory(10)->create();
         }
         if(Comment::count() ==0){
-            Comment::factory(100)->create();
+            Comment::factory(500)->create();
         }
         
     }

@@ -4,14 +4,108 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\CommentResource;
 use App\Models\Comment;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use PhpParser\Node\Expr\Empty_;
 
 class CommentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+//    cache handling
+
+public function setCache()
+{
+    try {
+        $comments = Comment::with('commentable')->take(30)->get();
+        
+        if ($comments->isEmpty()) {
+            return response()->json([
+                'message' => 'No comments found to cache',
+                'success' => false,
+            ], 404);
+        }
+     
+        Cache::put('comments', $comments, 20);
+
+        return response()->json([
+            'message' => 'Cache set successfully',
+            'success' => true,
+        ], 200);
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
+            'success' => false,
+        ], 500);
+    }
+}
+
+public function getCache(){
+    try{
+        if(Cache::has('comments')){
+
+            $comments = Cache::get('comments');
+        return response()->json([
+            'comments'=>$comments,
+            'success'=>true
+            ],200);
+
+        }
+        return response()->json([
+            'success'=> false,
+            'message'=>'Cache has been Expire'
+        ]);
+        
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'error'=> $e->getMessage()
+                ]);
+                }
+
+}
+public function deleteCache(){
+    try{
+        if(Cache::has('comments')){
+           Cache::pull('comments');
+           return response()->json([
+            'message'=>'Cache deleted successfully',
+            'success'=>true
+            ],200);
+            }
+            return response()->json([
+                'success'=>false,
+                'message'=>'Cache has been Expire'
+                ]);
+                }
+                catch(\Exception $e){
+                    return response()->json([
+                        'error'=> $e->getMessage()
+                        ]);
+                        }
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function index()
     {
         try {

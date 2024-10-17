@@ -21,3 +21,13 @@ Route::middleware('auth:api')->group(function () {
   
 });
 Route::apiResource('comments', CommentController::class);
+
+Route::controller(CommentController::class)
+->group(function(){
+   
+    Route::get('get-cache', 'getCache');
+    Route::get('delete-cache', 'deleteCache');
+
+   
+});
+Route::get('set-cache', [CommentController::class, 'setCache']);
